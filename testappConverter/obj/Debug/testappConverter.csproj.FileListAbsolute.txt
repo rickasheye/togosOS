@@ -1,0 +1,10 @@
+C:\Users\Crashy\source\repos\togos\testappConverter\bin\Debug\testappConverter.exe.config
+C:\Users\Crashy\source\repos\togos\testappConverter\bin\Debug\testappConverter.exe
+C:\Users\Crashy\source\repos\togos\testappConverter\bin\Debug\testappConverter.pdb
+C:\Users\Crashy\source\repos\togos\testappConverter\obj\Debug\testappConverter.csprojAssemblyReference.cache
+C:\Users\Crashy\source\repos\togos\testappConverter\obj\Debug\testappConverter.Form1.resources
+C:\Users\Crashy\source\repos\togos\testappConverter\obj\Debug\testappConverter.Properties.Resources.resources
+C:\Users\Crashy\source\repos\togos\testappConverter\obj\Debug\testappConverter.csproj.GenerateResource.cache
+C:\Users\Crashy\source\repos\togos\testappConverter\obj\Debug\testappConverter.csproj.CoreCompileInputs.cache
+C:\Users\Crashy\source\repos\togos\testappConverter\obj\Debug\testappConverter.exe
+C:\Users\Crashy\source\repos\togos\testappConverter\obj\Debug\testappConverter.pdb

@@ -5,18 +5,11 @@ using System.Text;
 
 namespace togos
 {
-    public class CommandExecutor
+    public static class CommandExecutor
     {
-        string currentDirectory = "0://";
-        Kernel kernelSaved;
+        static string currentDirectory = "0://";
 
-        public CommandExecutor(Kernel kernel)
-        {
-            Console.WriteLine("Welcome to Console Mode Created By Lethen Parkes");
-            kernelSaved = kernel;
-        }
-
-        public void ExecuteCommand(FileSystem system)
+        public static void ExecuteCommand()
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write(currentDirectory);
@@ -24,29 +17,82 @@ namespace togos
             Console.Write(" >");
             Console.ForegroundColor = ConsoleColor.White;
             string input = Console.ReadLine();
-            InitTextMode(input, system);
+            InitTextMode(input);
         }
 
-        public void InitTextMode(string command, FileSystem system)
+        public static void InitTextMode(string command)
         {
             string[] args = command.ToLower().Split(' ');
             try
             {
                 switch (args[0])
                 {
+                    case "readReg":
+                        string VariableType = args[1];
+                        switch (VariableType)
+                        {
+                            case "string":
+                            case "STRING":
+                            case "String":
+                            case "Word":
+                            case "WORD":
+                            case "word":
+                                //Word find
+                                if (API.RegistryEditor.StringExists(args[2]))
+                                {
+                                    CustomConsole.SuccessLog("The value for " + args[2] + " is " + API.RegistryEditor.returnString(args[2]));
+                                }
+                                else
+                                {
+                                    CustomConsole.ErrorLog("That string either doesnt have a value or doesnt exist.");
+                                }
+                                break;
+                            case "integer":
+                            case "INTEGER":
+                            case "Integer":
+                            case "number":
+                            case "NUMBER":
+                            case "Number":
+                                //Number find
+                                if (API.RegistryEditor.IntegerExists(args[2]))
+                                {
+                                    CustomConsole.SuccessLog("The value for " + args[2] + " is " + API.RegistryEditor.returnString(args[2]));
+                                }
+                                else
+                                {
+                                    CustomConsole.ErrorLog("That integer either doesnt have a value or doesnt exist.");
+                                }
+                                break;
+                            case "float":
+                            case "FLOAT":
+                            case "Float":
+                                //Float find
+                                if (API.RegistryEditor.FloatExists(args[2]))
+                                {
+                                    CustomConsole.SuccessLog("The value for " + args[2] + " is " + API.RegistryEditor.returnString(args[2]));
+                                }
+                                else
+                                {
+                                    CustomConsole.ErrorLog("That integer either doesnt have a value or doesnt exist.");
+                                }
+                                break;
+                        }
+                        break;
+                    case "editreg":
+                        break;
                     case "getinfo":
                     case "getInfo":
                     case "GetInfo":
                     case "Getinfo":
                     case "GETINFO":
                         Console.WriteLine("Directories: ");
-                        string[] pathsDirectories = system.GetDirFadr(currentDirectory);
+                        string[] pathsDirectories = API.FileExplorer.GetDirectories(currentDirectory);
                         for (int i = 0; i < pathsDirectories.Length; i++)
                         {
                             Console.WriteLine(pathsDirectories[i]);
                         }
                         Console.WriteLine("Files: ");
-                        string[] pathsFiles = system.GetFsFadr(currentDirectory);
+                        string[] pathsFiles = API.FileExplorer.GetFiles(currentDirectory);
                         for (int m = 0; m < pathsFiles.Length; m++)
                         {
                             Console.WriteLine(pathsFiles[m]);
@@ -57,10 +103,11 @@ namespace togos
                     case "gDir":
                     case "getDir":
                     case "GetDir":
+                    case "gdir":
                         if (args[1] != "" || args[1] != " " || args[1] != null)
                         {
                             Console.WriteLine("Directories: ");
-                            string[] pathsDirectoriesM = system.GetDirFadr(currentDirectory);
+                            string[] pathsDirectoriesM = API.FileExplorer.GetDirectories(currentDirectory);
                             for (int i = 0; i < pathsDirectoriesM.Length; i++)
                             {
                                 Console.WriteLine(pathsDirectoriesM[i]);
@@ -68,7 +115,7 @@ namespace togos
                         }
                         else
                         {
-                            Console.WriteLine("No directory defined reverting to original directory");
+                            CustomConsole.WarningLog("No directory defined reverting to original directory");
                             currentDirectory = "0://";
                         }
                         break;
@@ -82,7 +129,7 @@ namespace togos
                     case "getFiles":
                     case "Getfiles":
                         Console.WriteLine("Files: ");
-                        string[] pathsFilesM = system.GetFsFadr(currentDirectory);
+                        string[] pathsFilesM = API.FileExplorer.GetFiles(currentDirectory);
                         for (int m = 0; m < pathsFilesM.Length; m++)
                         {
                             Console.WriteLine(pathsFilesM[m]);
@@ -95,8 +142,7 @@ namespace togos
                     case "createDir":
                     case "CreateDir":
                         //string[] argsSplit = command.ToLower().Split(' ');
-                        Directory.CreateDirectory(currentDirectory + args[1]);
-                        Console.WriteLine("Created: " + args[1]);
+                        API.FileExplorer.CreateDirectory(currentDirectory + args[1]);
                         break;
                     case "rmdir":
                     case "removeDirectory":
@@ -106,15 +152,13 @@ namespace togos
                     case "removeDir":
                     case "removedir":
                     case "RemoveDir":
-                        Directory.Delete(currentDirectory + args[1]);
-                        Console.WriteLine("Deleted: " + args[1]);
+                        API.FileExplorer.DeleteDirectory(currentDirectory + args[1]);
                         break;
                     case "createfile":
                     case "cfile":
                     case "cf":
                     case "CREATEFILE":
-                        File.Create(currentDirectory + args[1]);
-                        Console.WriteLine("Created: " + args[1]);
+                        API.FileExplorer.CreateFile(currentDirectory + args[1]);
                         break;
                     case "rmfile":
                     case "deletefile":
@@ -123,11 +167,10 @@ namespace togos
                     case "RMFILE":
                     case "removeFile":
                     case "RemoveFile":
-                        File.Delete(currentDirectory + args[1]);
-                        Console.WriteLine("Deleted: " + args[1]);
+                        API.FileExplorer.DeleteFile(currentDirectory + args[1]);
                         break;
                     case "readText":
-                        string[] files = File.ReadAllLines(currentDirectory + args[1]);
+                        string[] files = API.FileExplorer.ReadTextArray(currentDirectory + args[1]);
                         foreach (string m in files)
                         {
                             Console.WriteLine(m);
@@ -162,7 +205,7 @@ namespace togos
                     case "initgraphics":
                     case "initg":
                     case "cgs":
-                        kernelSaved.InitGraphics();
+                        CustomConsole.WarningLog("uh oh this part isnt implemented yet.");
                         break;
                     case "echo":
                     case "message":
@@ -184,17 +227,13 @@ namespace togos
                         Console.Clear();
                         break;
                     default:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("ERROR: unknown command");
-                        Console.ForegroundColor = ConsoleColor.White;
+                        CustomConsole.ErrorLog("unknown command");
                         break;
                 }
             }
             catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("ERROR: " + e);
-                Console.ForegroundColor = ConsoleColor.White;
+                CustomConsole.ErrorLog(e.ToString());
             }
         }
     }

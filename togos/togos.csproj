@@ -76,6 +76,19 @@
         <ISO_PxeInterface>192.168.0.8</ISO_PxeInterface>
         <ISO_EnableGDB>False</ISO_EnableGDB>
         <ISO_StartCosmosGDB>False</ISO_StartCosmosGDB>
+        <PXE_StackCorruptionDetectionEnabled>True</PXE_StackCorruptionDetectionEnabled>
+        <PXE_StackCorruptionDetectionLevel>MethodFooters</PXE_StackCorruptionDetectionLevel>
+        <PXE_Description>Creates a PXE setup and hosts a DCHP and TFTP server to deploy directly to physical hardware. Allows debugging with a serial cable.</PXE_Description>
+        <PXE_Deployment>PXE</PXE_Deployment>
+        <PXE_Launch>None</PXE_Launch>
+        <PXE_DebugEnabled>False</PXE_DebugEnabled>
+        <PXE_DebugMode>Source</PXE_DebugMode>
+        <PXE_IgnoreDebugStubAttribute>False</PXE_IgnoreDebugStubAttribute>
+        <PXE_CosmosDebugPort>Serial: COM1</PXE_CosmosDebugPort>
+        <PXE_VisualStudioDebugPort>Pipe: Cosmos\Serial</PXE_VisualStudioDebugPort>
+        <PXE_PxeInterface>192.168.0.8</PXE_PxeInterface>
+        <PXE_EnableGDB>False</PXE_EnableGDB>
+        <PXE_StartCosmosGDB>False</PXE_StartCosmosGDB>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -90,8 +103,28 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <DebugEnabled>False</DebugEnabled>
+      <DebugEnabled>True</DebugEnabled>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="bin\**" />
+      <Compile Remove="Examples\**" />
+      <Compile Remove="Media\**" />
+      <Compile Remove="obj\**" />
+      <EmbeddedResource Remove="bin\**" />
+      <EmbeddedResource Remove="Examples\**" />
+      <EmbeddedResource Remove="Media\**" />
+      <EmbeddedResource Remove="obj\**" />
+      <None Remove="bin\**" />
+      <None Remove="Examples\**" />
+      <None Remove="Media\**" />
+      <None Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="NewApplicationManager.cs" />
+      <Compile Remove="Programs\TextEditor.cs" />
+    </ItemGroup>
 
     <ItemGroup>
       <None Remove="Resources\0.bmp" />
@@ -216,8 +249,12 @@
       <EmbeddedResource Include="Resources\d_.bmp">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </EmbeddedResource>
-      <EmbeddedResource Include="Resources\E.bmp" />
-      <EmbeddedResource Include="Resources\e_.bmp" />
+      <EmbeddedResource Include="Resources\E.bmp">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <EmbeddedResource Include="Resources\e_.bmp">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
       <EmbeddedResource Include="Resources\F.bmp">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </EmbeddedResource>
@@ -359,6 +396,7 @@
         <PackageReference Include="Cosmos.Build" Version="0-*" NoWarn="NU1604" />
         <PackageReference Include="Cosmos.Debug.Kernel" Version="0-*" NoWarn="NU1604" />
         <PackageReference Include="Cosmos.System2" Version="0-*" NoWarn="NU1604" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -374,6 +412,10 @@
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Programs\" />
     </ItemGroup>
 
 </Project>

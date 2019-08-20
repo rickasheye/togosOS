@@ -22,17 +22,33 @@ namespace togos.API
             }
         }
 
-        public static void CreateFile(string path)
+        public static bool fileExists(string path)
         {
             if (isFileSystemRunning())
             {
-                File.Create(path);
-                CustomConsole.SuccessLog("Created a file at " + path);
+                bool fileExists = File.Exists(path);
+                return fileExists;
             }
             else
             {
                 InitialiseFileSystem();
-                CreateFile(path);
+                return fileExists(path);
+            }
+        }
+
+        public static FileStream CreateFile(string path)
+        {
+            if (isFileSystemRunning())
+            {
+                FileStream stream = File.Create(path);
+                stream.Close();
+                CustomConsole.SuccessLog("Created a file at " + path);
+                return stream;
+            }
+            else
+            {
+                InitialiseFileSystem();
+                return CreateFile(path);
             }
         }
 
@@ -40,8 +56,59 @@ namespace togos.API
         {
             if (isFileSystemRunning())
             {
-                File.WriteAllLines(path, content);
+                using(FileStream fs = File.Create(path))
+                {
+                    foreach (string item in content)
+                    {
+                        AddText(fs, item);
+                    }
+                    fs.Close();
+                }
                 CustomConsole.SuccessLog("Created Text Document at " + path);
+            }
+            else
+            {
+                InitialiseFileSystem();
+                CreateTextDocument(path, content);
+            }
+        }
+
+        public static void EditTextDocument(string path, string[] content)
+        {
+            if (isFileSystemRunning())
+            {
+                if (fileExists(path))
+                {
+                    File.WriteAllLinesAsync(path, content);
+                    CustomConsole.SuccessLog("Created Text Document at " + path);
+                }
+                else
+                {
+                    //Create the text document and place the content inside there
+                    CreateTextDocument(path, content);
+                }
+            }
+            else
+            {
+                InitialiseFileSystem();
+                CreateTextDocument(path, content);
+            }
+        }
+
+        public static void EditTextDocument(string path, string content)
+        {
+            if (isFileSystemRunning())
+            {
+                if (fileExists(path))
+                {
+                    File.WriteAllTextAsync(path, content);
+                    CustomConsole.SuccessLog("Created Text Document at " + path);
+                }
+                else
+                {
+                    //Create the text document and place the content inside there
+                    CreateTextDocument(path, content);
+                }
             }
             else
             {
@@ -54,7 +121,11 @@ namespace togos.API
         {
             if (isFileSystemRunning())
             {
-                File.WriteAllText(path, content);
+                using(FileStream fs = File.Create(path))
+                {
+                    AddText(fs, content);
+                    fs.Close();
+                }
                 CustomConsole.SuccessLog("Created Text Document at " + path);
             }
             else
@@ -64,11 +135,28 @@ namespace togos.API
             }
         }
 
+        public static void AddText(FileStream fs, string value)
+        {
+            byte[] info = new UTF8Encoding(true).GetBytes(value);
+            fs.Write(info, 0, info.Length);
+        }
+
         public static string ReadText(string path)
         {
             if (isFileSystemRunning())
             {
-                return File.ReadAllText(path);
+                string data = "";
+                using (FileStream fs = File.OpenRead(path))
+                {
+                    byte[] b = new byte[1024];
+                    UTF8Encoding temp = new UTF8Encoding(true);
+                    while(fs.Read(b, 0, b.Length) > 0)
+                    {
+                        data += temp.GetString(b);
+                    }
+                    fs.Close();
+                }
+                return data;
             }
             else
             {
@@ -81,7 +169,18 @@ namespace togos.API
         {
             if (isFileSystemRunning())
             {
-                return File.ReadAllLines(path);
+                List<String> data = new List<string>();
+                using (FileStream fs = File.OpenRead(path))
+                {
+                    byte[] b = new byte[1024];
+                    UTF8Encoding temp = new UTF8Encoding(true);
+                    while(fs.Read(b, 0, b.Length) > 0)
+                    {
+                        data.Add(temp.GetString(b));
+                    }
+                    fs.Close();
+                }
+                return data.ToArray();
             }
             else
             {
@@ -169,6 +268,19 @@ namespace togos.API
             }
         }
 
+        public static bool DirectoryExists(string path)
+        {
+            if (isFileSystemRunning())
+            {
+                return Directory.Exists(path);
+            }
+            else
+            {
+                InitialiseFileSystem();
+                return DirectoryExists(path);
+            }
+        }
+
         public static void CreateDirectory(string path)
         {
             if (isFileSystemRunning())
@@ -209,6 +321,19 @@ namespace togos.API
                 DeleteDirectory(path);
             }
         }
+
+        public static byte[] ReadAllBytes(string path)
+        {
+            if (isFileSystemRunning())
+            {
+                return File.ReadAllBytes(path);
+            }
+            else
+            {
+                InitialiseFileSystem();
+                return ReadAllBytes(path);
+            }
+        } 
 
         public static void InitialiseFileSystem()
         {

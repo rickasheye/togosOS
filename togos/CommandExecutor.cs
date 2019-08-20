@@ -1,23 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
 namespace togos
 {
     public static class CommandExecutor
     {
-        static string currentDirectory = "0://";
+        public static string currentDirectory = "0:\\";
 
         public static void ExecuteCommand()
         {
+            //Console.WriteLine("Welcome to my Cosmos Kernal made by Rickasheye");
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write(currentDirectory);
+            Console.Write(Kernel.loggedAccount.username + "@" + currentDirectory);
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write(" >");
             Console.ForegroundColor = ConsoleColor.White;
             string input = Console.ReadLine();
             InitTextMode(input);
+            CustomConsole.WarningLog("Hmm... youve seem to hit rock bottom");
+            CustomConsole.WarningLog("Let me kick you back in");
+            ExecuteCommand();
         }
 
         public static void InitTextMode(string command)
@@ -25,17 +26,13 @@ namespace togos
             string[] args = command.ToLower().Split(' ');
             try
             {
-                switch (args[0])
+                switch (args[0].ToLower())
                 {
-                    case "readReg":
+                    case "readreg":
                         string VariableType = args[1];
-                        switch (VariableType)
+                        switch (VariableType.ToLower())
                         {
                             case "string":
-                            case "STRING":
-                            case "String":
-                            case "Word":
-                            case "WORD":
                             case "word":
                                 //Word find
                                 if (API.RegistryEditor.StringExists(args[2]))
@@ -48,11 +45,7 @@ namespace togos
                                 }
                                 break;
                             case "integer":
-                            case "INTEGER":
-                            case "Integer":
                             case "number":
-                            case "NUMBER":
-                            case "Number":
                                 //Number find
                                 if (API.RegistryEditor.IntegerExists(args[2]))
                                 {
@@ -64,8 +57,6 @@ namespace togos
                                 }
                                 break;
                             case "float":
-                            case "FLOAT":
-                            case "Float":
                                 //Float find
                                 if (API.RegistryEditor.FloatExists(args[2]))
                                 {
@@ -79,12 +70,10 @@ namespace togos
                         }
                         break;
                     case "editreg":
+                        API.Commands.editreg regEdit = new API.Commands.editreg();
+                        regEdit.Start(args);
                         break;
                     case "getinfo":
-                    case "getInfo":
-                    case "GetInfo":
-                    case "Getinfo":
-                    case "GETINFO":
                         Console.WriteLine("Directories: ");
                         string[] pathsDirectories = API.FileExplorer.GetDirectories(currentDirectory);
                         for (int i = 0; i < pathsDirectories.Length; i++)
@@ -98,36 +87,49 @@ namespace togos
                             Console.WriteLine(pathsFiles[m]);
                         }
                         break;
-                    case "getdir":
-                    case "GETDIR":
-                    case "gDir":
-                    case "getDir":
-                    case "GetDir":
-                    case "gdir":
-                        if (args[1] != "" || args[1] != " " || args[1] != null)
+                    case "changedirectory":
+                    case "cd":
+                        try
                         {
-                            Console.WriteLine("Directories: ");
-                            string[] pathsDirectoriesM = API.FileExplorer.GetDirectories(currentDirectory);
-                            for (int i = 0; i < pathsDirectoriesM.Length; i++)
+                            if (args[1] != "" || args[1] != null)
                             {
-                                Console.WriteLine(pathsDirectoriesM[i]);
+                                if (API.FileExplorer.DirectoryExists(args[1]) != false)
+                                {
+                                    currentDirectory = args[1];
+                                }
+                                else
+                                {
+                                    CustomConsole.ErrorLog("Seems like that this isnt a directory");
+                                    currentDirectory = "0:\\";
+                                }
+                            }
+                            else if(args[1] == "" || args[1] == null)
+                            {
+                                currentDirectory = "0:\\";
+                            }
+                            else
+                            {
+                                currentDirectory = "0:\\";
                             }
                         }
-                        else
+                        catch (Exception e)
                         {
-                            CustomConsole.WarningLog("No directory defined reverting to original directory");
-                            currentDirectory = "0://";
+                            CustomConsole.ErrorLog("" + e);
+                            currentDirectory = "0:\\";
+                        }
+                        break;
+                    case "getdir":
+                    case "getd":
+                        Console.WriteLine("Directories: ");
+                        string[] pathsDirectoriesM = API.FileExplorer.GetDirectories(currentDirectory);
+                        for (int i = 0; i < pathsDirectoriesM.Length; i++)
+                        {
+                            Console.WriteLine(pathsDirectoriesM[i]);
                         }
                         break;
                     case "getfiles":
-                    case "gFiles":
-                    case "getF":
                     case "getf":
                     case "gfiles":
-                    case "GETFILES":
-                    case "GetFiles":
-                    case "getFiles":
-                    case "Getfiles":
                         Console.WriteLine("Files: ");
                         string[] pathsFilesM = API.FileExplorer.GetFiles(currentDirectory);
                         for (int m = 0; m < pathsFilesM.Length; m++)
@@ -137,36 +139,20 @@ namespace togos
                         break;
                     case "createdir":
                     case "cdir":
-                    case "CREATEDIR":
-                    case "CDIR":
-                    case "createDir":
-                    case "CreateDir":
                         //string[] argsSplit = command.ToLower().Split(' ');
                         API.FileExplorer.CreateDirectory(currentDirectory + args[1]);
                         break;
                     case "rmdir":
-                    case "removeDirectory":
-                    case "RemoveDirectory":
-                    case "RMDIR":
-                    case "REMOVEDIR":
-                    case "removeDir":
                     case "removedir":
-                    case "RemoveDir":
                         API.FileExplorer.DeleteDirectory(currentDirectory + args[1]);
                         break;
                     case "createfile":
                     case "cfile":
                     case "cf":
-                    case "CREATEFILE":
                         API.FileExplorer.CreateFile(currentDirectory + args[1]);
                         break;
                     case "rmfile":
                     case "deletefile":
-                    case "DeleteFile":
-                    case "deleteFile":
-                    case "RMFILE":
-                    case "removeFile":
-                    case "RemoveFile":
                         API.FileExplorer.DeleteFile(currentDirectory + args[1]);
                         break;
                     case "readText":
@@ -180,60 +166,116 @@ namespace togos
                         ping.Run(command);
                         break;
                     case "power":
-                        switch (args[1])
+                        switch (args[1].ToLower())
                         {
                             case "shutdown":
-                            case "Shutdown":
                             case "powerdown":
-                            case "SHUTDOWN":
-                            case "ShutDown":
                                 Cosmos.System.Power.Shutdown();
                                 break;
                             case "restart":
-                            case "Restart":
                             case "reboot":
-                            case "REBOOT":
-                            case "Reboot":
-                            case "RESTART":
-                            case "ReStart":
                                 Cosmos.System.Power.Reboot();
+                                break;
+                            default:
+                                CustomConsole.ErrorLog("No Power State was defined!");
                                 break;
                         }
                         break;
                     case "cgsinit":
-                    case "initGraphics":
                     case "initgraphics":
                     case "initg":
                     case "cgs":
-                        CustomConsole.WarningLog("uh oh this part isnt implemented yet.");
+                        switch (args[1].ToLower())
+                        {
+                            case "launch":
+                                Desktop.InitGraphics();
+                                break;
+                            case "drawfilledsquare":
+                                //API.DisplayDriver.DrawFilledRectangle(Color.FromName(args[2].ToLower()), int.Parse(args[3]), int.Parse(args[4]), int.Parse(args[5]), int.Parse(args[6]));
+                                CustomConsole.WarningLog("Drawing a filled square is not a supported function yet...");
+                                break;
+                            case "clear":
+                                //API.DisplayDriver.Clear(Color.FromName(args[2].ToLower()));
+                                CustomConsole.WarningLog("Clear is not a supported function yet.");
+                                break;
+                            default:
+                                CustomConsole.ErrorLog("No Cosmos Graphics System Launch Paremeter was defined!");
+                                break;
+                        }
                         break;
                     case "echo":
                     case "message":
-                        for(int i = 1; i < args.Length; i++)
-                        {
-                            if(i == 1)
-                            {
-                                Console.WriteLine(args[1]);
-                            }
-                            else
-                            {
-                                Console.Write(args[i]);
-                            }
-                        }
+                        string message = string.Join(' ', args);
+                        message = message.Replace(args[0].ToLower(), " ");
+                        Console.WriteLine(string.Join(' ', args));
                         break;
                     case "cls":
                     case "clear":
-                    case "CLEAR":
                         Console.Clear();
+                        break;
+                    case "repeat":
+                        if (args[1] != "")
+                        {
+                            try
+                            {
+                                int parse = int.Parse(args[1]);
+                                for (int i = 0; i < parse; i++)
+                                {
+                                    if (args[2] != "")
+                                    {
+                                        InitTextMode(args[2]);
+                                    }
+                                    else
+                                    {
+                                        //No command is defined
+                                        CustomConsole.ErrorLog("Unable to execute... no command defined!");
+                                    }
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                CustomConsole.ErrorLog(e.Message);
+                                //Error occured try to execute the first parameter
+                                InitTextMode(args[1]);
+                            }
+                        }
+                        else
+                        {
+                            CustomConsole.ErrorLog("no count is defined!");
+                        }
                         break;
                     default:
                         CustomConsole.ErrorLog("unknown command");
                         break;
+                    case "loop":
+                        if(args[1] != "")
+                        {
+                            try
+                            {
+                                if(args[2] != null)
+                                {
+                                    while (true)
+                                    {
+                                        InitTextMode(args[2]);
+                                    }
+                                }
+                            }catch(Exception e)
+                            {
+                                CustomConsole.ErrorLog(e.Message);
+                            }
+                        }
+                        break;
                 }
+                //Just for shits and giggles lets let the user run a command from the runtime
+                //Convert the string command to an array to run on the command executor
+                string[] fakeProgram = { command };
+                ApplicationRuntime.StartApplication(fakeProgram);
+                ExecuteCommand();
             }
             catch (Exception e)
             {
                 CustomConsole.ErrorLog(e.ToString());
+                ExecuteCommand();
             }
         }
     }
